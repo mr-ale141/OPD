@@ -13,6 +13,21 @@ int main()
     shape1.setFillColor(sf::Color(0xFF, 0X0, 0X0));
     window.draw(shape1);
 
+    sf::CircleShape shape2(48);
+    shape2.setPosition({ 260, 120 });
+    shape2.setFillColor(sf::Color(0x0, 0XFF, 0X0));
+    window.draw(shape2);
+
+    sf::CircleShape shape3(60);
+    shape3.setPosition({ 320, 160 });
+    shape3.setFillColor(sf::Color(0x0, 0X0, 0XFF));
+    window.draw(shape3);
+
+    sf::CircleShape shape4(75);
+    shape4.setPosition({ 330, 220 });
+    shape4.setFillColor(sf::Color(0xFF, 0XFF, 0X0));
+    window.draw(shape4);
+
     window.display();
 
     sf::sleep(sf::seconds(5));
