@@ -2,13 +2,13 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
-#define WINDOW_WIDTH 700
-#define WINDOW_HIGHT 320
 #define OFFSET 10
-#define WIDTH_ALPHA 190
-#define HIGHT_ALPHA 300
-#define WIDTH_LINE 10
+#define WIDTH_ALPHA 95
+#define HIGHT_ALPHA 150
+#define WIDTH_LINE 5
 #define WIDTH_SPACE 50
+#define WINDOW_WIDTH WIDTH_ALPHA * 3 + WIDTH_SPACE * 2 + OFFSET * 2 + WIDTH_LINE
+#define WINDOW_HIGHT HIGHT_ALPHA + 2 * OFFSET
 
 void print_M(sf::RenderWindow * window, float x, float y) {
     sf::RectangleShape left_M;
@@ -18,7 +18,7 @@ void print_M(sf::RenderWindow * window, float x, float y) {
     (*window).draw(left_M);
 
     sf::RectangleShape left_iner_M;
-    left_iner_M.setSize({WIDTH_LINE, 137});
+    left_iner_M.setSize({WIDTH_LINE, WIDTH_ALPHA * 0.707});
     left_iner_M.setPosition({WIDTH_LINE + x, y});
     left_iner_M.setOrigin(WIDTH_LINE, 0);
     left_iner_M.setRotation(-45);
@@ -26,7 +26,7 @@ void print_M(sf::RenderWindow * window, float x, float y) {
     (*window).draw(left_iner_M);
 
     sf::RectangleShape right_iner_M;
-    right_iner_M.setSize({WIDTH_LINE, 137});
+    right_iner_M.setSize({WIDTH_LINE, WIDTH_ALPHA * 0.707});
     right_iner_M.setPosition({WIDTH_ALPHA + x, y});
     right_iner_M.setOrigin(0, 0);
     right_iner_M.setRotation(45);

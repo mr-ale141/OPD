@@ -1,7 +1,7 @@
 add_executable(00 main.cpp)
 
 set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_DIR "/home/ale141/SFML-2.6.0/SFML-2.6.0-build/")
+set(SFML_DIR "C:/Program Files (x86)/SFML/")
 
 find_package(Freetype)
 find_package(JPEG)
