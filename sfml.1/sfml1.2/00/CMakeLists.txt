@@ -1,7 +1,14 @@
 add_executable(00 main.cpp)
 
 set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_DIR "C:/Program Files (x86)/SFML/")
+
+if(WIN32)
+    set(SFML_DIR "C:/Program Files (x86)/SFML/")
+elseif(UNIX)
+    set(SFML_DIR "/home/ale141/SFML-2.6.0/SFML-2.6.0-build/")
+else()
+    message(CMAKE_ERROR_DEPRECATED "Unknow operetion system")
+endif()
 
 find_package(Freetype)
 find_package(JPEG)

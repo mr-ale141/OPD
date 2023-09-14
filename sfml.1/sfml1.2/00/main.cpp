@@ -3,8 +3,8 @@
 #include <SFML/Window.hpp>
 
 #define OFFSET 10
-#define WIDTH_ALPHA 95
-#define HIGHT_ALPHA 150
+#define WIDTH_ALPHA 190
+#define HIGHT_ALPHA 300
 #define WIDTH_LINE 5
 #define WIDTH_SPACE 50
 #define WINDOW_WIDTH WIDTH_ALPHA * 3 + WIDTH_SPACE * 2 + OFFSET * 2 + WIDTH_LINE
