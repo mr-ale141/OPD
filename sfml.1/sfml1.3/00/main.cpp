@@ -2,8 +2,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HIGHT 600
+#define WINDOW_WIDTH 80
+#define WINDOW_HIGHT 60
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HIGHT}), "House");
@@ -43,19 +43,19 @@ int main() {
     smouke1.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
     window.draw(smouke1);
 
-    sf::CircleShape smouke2(WINDOW_HIGHT / 45);
-    smouke2.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
-    smouke2.setPosition({3 * WINDOW_WIDTH / 4, 3 * WINDOW_HIGHT / 16 - 3 * WINDOW_HIGHT / 45});
+    sf::CircleShape smouke2(WINDOW_HIGHT / 37);
+    smouke2.setFillColor(sf::Color(0xDA, 0xDA, 0xDA));
+    smouke2.setPosition({3 * WINDOW_WIDTH / 4 - 1.5 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 3.7 * WINDOW_HIGHT / 45});
     window.draw(smouke2);
 
-    sf::CircleShape smouke3(WINDOW_HIGHT / 40);
+    sf::CircleShape smouke3(WINDOW_HIGHT / 35);
     smouke3.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
-    smouke3.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
+    smouke3.setPosition({3 * WINDOW_WIDTH / 4 - 0.5 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 5.5 * WINDOW_HIGHT / 45});
     window.draw(smouke3);
 
-    sf::CircleShape smouke4(WINDOW_HIGHT / 40);
+    sf::CircleShape smouke4(WINDOW_HIGHT / 30);
     smouke4.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
-    smouke4.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
+    smouke4.setPosition({3 * WINDOW_WIDTH / 4 - 0 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 8 * WINDOW_HIGHT / 45});
     window.draw(smouke4);
 
     sf::RectangleShape cap;
