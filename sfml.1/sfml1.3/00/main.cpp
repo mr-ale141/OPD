@@ -2,75 +2,68 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
-#define OFFSET 10
-#define WIDTH_ALPHA 190
-#define HIGHT_ALPHA 300
-#define WIDTH_LINE 5
-#define WIDTH_SPACE 50
-#define WINDOW_WIDTH WIDTH_ALPHA * 3 + WIDTH_SPACE * 2 + OFFSET * 2 + WIDTH_LINE
-#define WINDOW_HIGHT HIGHT_ALPHA + 2 * OFFSET
-
-void print_M(sf::RenderWindow * window, float x, float y) {
-    sf::RectangleShape left_M;
-    left_M.setSize({WIDTH_LINE, HIGHT_ALPHA});
-    left_M.setPosition({x, y});
-    left_M.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
-    (*window).draw(left_M);
-
-    sf::RectangleShape left_iner_M;
-    left_iner_M.setSize({WIDTH_LINE, WIDTH_ALPHA * 0.707});
-    left_iner_M.setPosition({WIDTH_LINE + x, y});
-    left_iner_M.setOrigin(WIDTH_LINE, 0);
-    left_iner_M.setRotation(-45);
-    left_iner_M.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
-    (*window).draw(left_iner_M);
-
-    sf::RectangleShape right_iner_M;
-    right_iner_M.setSize({WIDTH_LINE, WIDTH_ALPHA * 0.707});
-    right_iner_M.setPosition({WIDTH_ALPHA + x, y});
-    right_iner_M.setOrigin(0, 0);
-    right_iner_M.setRotation(45);
-    right_iner_M.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
-    (*window).draw(right_iner_M);
-
-    sf::RectangleShape right_M;
-    right_M.setSize({WIDTH_LINE, HIGHT_ALPHA});
-    right_M.setPosition({WIDTH_ALPHA + x, y});
-    right_M.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
-    (*window).draw(right_M);
-}
-
-void print_D(sf::RenderWindow *window, float x, float y) {
-    sf::ConvexShape convex;
-    convex.setOutlineThickness(WIDTH_LINE);
-    convex.setOutlineColor(sf::Color(0xFF, 0xFF, 0xFF));
-    convex.setFillColor(sf::Color(0x0, 0x0, 0x0));
-    convex.setPointCount(12);
-    convex.setPoint(0, {x + WIDTH_LINE, y + WIDTH_LINE});
-    convex.setPoint(1, {WIDTH_ALPHA / 2 + x, WIDTH_LINE + y});
-
-    convex.setPoint(2, {WIDTH_ALPHA / 2 + x + 4 * (WIDTH_ALPHA / 20), y + 1.5 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(3, {WIDTH_ALPHA / 2 + x + 7 * (WIDTH_ALPHA / 20), y + 3 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(4, {WIDTH_ALPHA / 2 + x + 9 * (WIDTH_ALPHA / 20), y + 6 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(5, {x + WIDTH_ALPHA, y + 10 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(6, {x + WIDTH_ALPHA, y + 15 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(7, {WIDTH_ALPHA / 2 + x + 9 * (WIDTH_ALPHA / 20), y + 19 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(8, {WIDTH_ALPHA / 2 + x + 7 * (WIDTH_ALPHA / 20), y + 22 * (HIGHT_ALPHA / 25)});
-    convex.setPoint(9, {WIDTH_ALPHA / 2 + x + 4 * (WIDTH_ALPHA / 20), y + 23.5 * (HIGHT_ALPHA / 25)});
-
-    convex.setPoint(10, {WIDTH_ALPHA / 2 + x, HIGHT_ALPHA + y - WIDTH_LINE});
-    convex.setPoint(11, {x + WIDTH_LINE, HIGHT_ALPHA + y - WIDTH_LINE});
-    (*window).draw(convex);
-}
+#define WINDOW_WIDTH 800
+#define WINDOW_HIGHT 600
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HIGHT}), "Inicial");
+    sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HIGHT}), "House");
 
     window.clear();
 
-    print_M(&window, OFFSET, OFFSET);
-    print_D(&window, OFFSET + WIDTH_ALPHA + WIDTH_SPACE, OFFSET);
-    print_M(&window, OFFSET + 2 * WIDTH_SPACE + 2 * WIDTH_ALPHA, OFFSET);
+    sf::RectangleShape blockHouse;
+    blockHouse.setPosition({WINDOW_WIDTH / 10, WINDOW_HIGHT / 2});
+    blockHouse.setSize({WINDOW_WIDTH - 2 * WINDOW_WIDTH / 10, WINDOW_HIGHT / 2 - WINDOW_HIGHT / 15});
+    blockHouse.setFillColor(sf::Color(0x42, 0x25, 0x0B));
+    window.draw(blockHouse);
+
+    sf::RectangleShape door;
+    door.setPosition({2 * WINDOW_WIDTH / 10, WINDOW_HIGHT - WINDOW_HIGHT / 15});
+    door.setSize({WINDOW_WIDTH / 9, -WINDOW_HIGHT / 3});
+    door.setFillColor(sf::Color(0x10, 0x10, 0x10));
+    window.draw(door); 
+
+    sf::ConvexShape roof;
+    roof.setFillColor(sf::Color(0x59, 0x23, 0x21));
+    roof.setPosition({WINDOW_WIDTH / 2, WINDOW_HIGHT / 2});
+    roof.setPointCount(4);
+    roof.setPoint(0, {-WINDOW_WIDTH / 2 + WINDOW_WIDTH / 80, 0});
+    roof.setPoint(1, {-WINDOW_WIDTH / 4, -WINDOW_HIGHT / 4 + WINDOW_HIGHT / 60});
+    roof.setPoint(2, {WINDOW_WIDTH / 4, -WINDOW_HIGHT / 4 + WINDOW_HIGHT / 60});
+    roof.setPoint(3, {WINDOW_WIDTH / 2 - WINDOW_WIDTH / 80, 0});
+    window.draw(roof);
+
+    sf::RectangleShape tube;
+    tube.setPosition({3 * WINDOW_WIDTH / 4 - WINDOW_WIDTH / 70, WINDOW_HIGHT / 4});
+    tube.setSize({-WINDOW_WIDTH / 16 + 2 * WINDOW_WIDTH / 70, WINDOW_HIGHT / 8});
+    tube.setFillColor(sf::Color(0x80, 0x80, 0x80));
+    window.draw(tube);
+
+    sf::CircleShape smouke1(WINDOW_HIGHT / 40);
+    smouke1.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
+    smouke1.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
+    window.draw(smouke1);
+
+    sf::CircleShape smouke2(WINDOW_HIGHT / 45);
+    smouke2.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
+    smouke2.setPosition({3 * WINDOW_WIDTH / 4, 3 * WINDOW_HIGHT / 16 - 3 * WINDOW_HIGHT / 45});
+    window.draw(smouke2);
+
+    sf::CircleShape smouke3(WINDOW_HIGHT / 40);
+    smouke3.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
+    smouke3.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
+    window.draw(smouke3);
+
+    sf::CircleShape smouke4(WINDOW_HIGHT / 40);
+    smouke4.setFillColor(sf::Color(0xD7, 0xD7, 0xD7));
+    smouke4.setPosition({3 * WINDOW_WIDTH / 4 - 2 * WINDOW_HIGHT / 40, 3 * WINDOW_HIGHT / 16 - 2 * WINDOW_HIGHT / 45});
+    window.draw(smouke4);
+
+    sf::RectangleShape cap;
+    cap.setPosition({3 * WINDOW_WIDTH / 4, WINDOW_HIGHT / 4});
+    cap.setSize({-WINDOW_WIDTH / 16, -WINDOW_HIGHT / 16});
+    cap.setFillColor(sf::Color(0x80, 0x80, 0x80));
+    window.draw(cap);
+
 
     window.display();
 
