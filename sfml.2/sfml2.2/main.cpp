@@ -1,20 +1,36 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/System.hpp>
 #include <cmath>
 
-constexpr unsigned WINDOW_WIDTH = 800;
-constexpr unsigned WINDOW_HEIGHT = 600;
+constexpr int pointCount = 200;
+
+void setPositionRose(sf::ConvexShape *rose, sf::Vector2f position)
+{
+    rose->setPosition(position);
+    for (int pointNo = 0; pointNo < pointCount; ++pointNo)
+    {
+        float angle = float(2 * M_PI * pointNo) / float(pointCount);
+        const float roseRadius = 200 * std::sin(6 * angle);
+        sf::Vector2f point = {
+            roseRadius * std::sin(angle),
+            roseRadius * std::cos(angle)};
+        rose->setPoint(pointNo, point);
+    }
+}
+
 int main()
 {
-    constexpr float BALL_SIZE = 40;
-    sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), "Wave Moving Ball");
-    sf::Clock clock;
-    sf::Vector2f position = {10, 260};
-    float speedX = 150.f;
-    float all_time = 0.0;
-    sf::CircleShape ball(BALL_SIZE);
-    ball.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    sf::RenderWindow window(
+        sf::VideoMode({800, 600}),
+        "Ellipse",
+        sf::Style::Default,
+        settings);
+    sf::ConvexShape rose;
+    rose.setFillColor(sf::Color(0xFF, 0x09, 0x80));
+    rose.setPointCount(pointCount);
+    setPositionRose(&rose, {400, 320});
     while (window.isOpen())
     {
         sf::Event event;
@@ -25,22 +41,8 @@ int main()
                 window.close();
             }
         }
-        const float dtime = clock.restart().asSeconds();
-        all_time += dtime;
-        constexpr float amplitudeY = 80.f;
-        constexpr float periodY = 2;
-        const float wavePhase = all_time * float(2 * M_PI);
-        const float x = speedX * dtime;
-        const float y = amplitudeY * std::sin(wavePhase / periodY);
-        const sf::Vector2f offset = {0, y};
-        position.x += x;
-        if ((position.x + 2 * BALL_SIZE >= WINDOW_WIDTH) && (speedX > 0))
-            speedX = -speedX;
-        if ((position.x < 0) && (speedX < 0))
-            speedX = -speedX;
-        ball.setPosition(position + offset);
         window.clear();
-        window.draw(ball);
+        window.draw(rose);
         window.display();
     }
 }
