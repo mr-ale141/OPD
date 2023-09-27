@@ -3,6 +3,8 @@
 #include <cmath>
 
 constexpr int pointCount = 200;
+constexpr float radiusMoving = 50.f;
+constexpr float revPerSec = 1.f;
 
 void setPositionRose(sf::ConvexShape *rose, sf::Vector2f position)
 {
@@ -20,17 +22,22 @@ void setPositionRose(sf::ConvexShape *rose, sf::Vector2f position)
 
 int main()
 {
+    const sf::Vector2f centerMoving = {400.f, 300.f};
+    constexpr float angleSpeed = revPerSec * (2 * M_PI);
+    
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
         sf::VideoMode({800, 600}),
-        "Ellipse",
+        "Rose",
         sf::Style::Default,
         settings);
+    
+    sf::Clock clock;
+    
     sf::ConvexShape rose;
     rose.setFillColor(sf::Color(0xFF, 0x09, 0x80));
     rose.setPointCount(pointCount);
-    setPositionRose(&rose, {400, 320});
     while (window.isOpen())
     {
         sf::Event event;
@@ -41,6 +48,11 @@ int main()
                 window.close();
             }
         }
+        const float time = clock.getElapsedTime().asSeconds();
+        const float x = radiusMoving * std::cos(angleSpeed * time);
+        const float y = radiusMoving * std::sin(angleSpeed * time);
+        const sf::Vector2f offset = {x, y};
+        setPositionRose(&rose, centerMoving + offset);
         window.clear();
         window.draw(rose);
         window.display();
