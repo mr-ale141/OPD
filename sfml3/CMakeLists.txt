@@ -17,3 +17,4 @@ find_package(JPEG)
 find_package(SFML 2.6 COMPONENTS window graphics system REQUIRED)
 
 add_subdirectory(00)
+add_subdirectory(01)
