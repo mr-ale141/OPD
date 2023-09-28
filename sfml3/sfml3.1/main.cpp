@@ -20,7 +20,7 @@ float toDegress(float radians)
 
 void onMouseMove(const sf::Event::MouseMoveEvent &event, sf::Vector2f &mousePosition)
 {
-    std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
+    //std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
     mousePosition = {float(event.x), float(event.y)};
 }
 
@@ -47,6 +47,12 @@ void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer)
 {
     const sf::Vector2f delta = mousePosition - pointer.getPosition();
     const float angle = atan2(delta.y, delta.x);
+    float old_angle = pointer.getRotation();
+    /*
+    float da = old_angle - ((toDegress(angle) >= 0) ? toDegress(angle) : 360 + toDegress(angle));
+    std::cout << old_angle << " | " << da << " | " << toDegress(angle) << std::endl;
+    pointer.rotate((da < 15 && -da < 15) ? da : 15 * (da / abs(da)));
+    */
     pointer.setRotation(toDegress(angle));
 }
 
