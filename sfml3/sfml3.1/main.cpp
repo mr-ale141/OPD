@@ -43,8 +43,10 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
     }
 }
 
-void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer)
+void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer, sf::Clock &clock)
 {
+    constexpr float angleSpeed = 15.f;
+
     const sf::Vector2f delta = mousePosition - pointer.getPosition();
     const float angle = atan2(delta.y, delta.x);
     float old_angle = pointer.getRotation();
@@ -68,6 +70,8 @@ int main()
     constexpr unsigned WINDOW_WIDTH = 800;
     constexpr unsigned WINDOW_HEIGHT = 600;
 
+    sf::Clock clock;
+
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
@@ -84,7 +88,7 @@ int main()
     while (window.isOpen())
     {
         pollEvents(window, mousePosition);
-        update(mousePosition, pointer);
+        update(mousePosition, pointer, clock);
         redrawFrame(window, pointer);
     }
 }
