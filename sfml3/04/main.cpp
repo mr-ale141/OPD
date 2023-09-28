@@ -3,19 +3,53 @@
 #include <cmath>
 #include <iostream>
 
-void init(sf::ConvexShape &pointer)
+struct Arrow
 {
-    pointer.setPointCount(3);
-    pointer.setPoint(0, {40, 0});
-    pointer.setPoint(1, {-20, -20});
-    pointer.setPoint(2, {-20, 20});
-    pointer.setPosition({400, 300});
-    pointer.setFillColor(sf::Color(0xFF, 0x80, 0x00));
+    sf::ConvexShape head;
+    sf::RectangleShape stem;
+    sf::Vector2f position;
+    float rotation = 0;
+};
+
+sf::Vector2f toEuclidean(float radius, float angle)
+{
+    return {
+        float(radius * std::cos(angle)),
+        float(radius * std::sin(angle))
+    };
 }
 
-float toDegress(float radians)
+float toDegrees(float radians)
 {
     return float(double(radians) * 180.0 / M_PI);
+}
+
+void updateArrowElements(Arrow& arrow)
+{
+    const sf::Vector2f headOffset = toEuclidean(40, arrow.rotation);
+    arrow.head.setPosition(arrow.position + headOffset);
+    arrow.head.setRotation(toDegrees(arrow.rotation));
+    
+    const sf::Vector2f stemOffset = toEuclidean(-10, arrow.rotation); // ?????????????????????????????
+    arrow.stem.setPosition(arrow.position);
+    arrow.stem.setRotation(toDegrees(arrow.rotation));
+}
+
+void initArrow(Arrow &arrow)
+{
+    arrow.position = {400, 300};
+    
+    arrow.head.setPointCount(3);
+    arrow.head.setPoint(0, {30, 0});
+    arrow.head.setPoint(1, {0, -20});
+    arrow.head.setPoint(2, {0, 20});
+    arrow.head.setFillColor(sf::Color(0xFF, 0x00, 0x00));
+
+    arrow.stem.setSize({80, 20});
+    arrow.stem.setOrigin({40, 10});
+    arrow.stem.setFillColor(sf::Color(0xF0, 0xA0, 0x00));
+
+    updateArrowElements(arrow);
 }
 
 void onMouseMove(const sf::Event::MouseMoveEvent &event, sf::Vector2f &mousePosition)
@@ -43,17 +77,18 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
     }
 }
 
-void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer)
+void update(const sf::Vector2f &mousePosition, Arrow &arrow)
 {
-    const sf::Vector2f delta = mousePosition - pointer.getPosition();
-    const float angle = atan2(delta.y, delta.x);
-    pointer.setRotation(toDegress(angle));
+    const sf::Vector2f delta = mousePosition - arrow.position;
+    arrow.rotation = atan2(delta.y, delta.x);
+    updateArrowElements(arrow);
 }
 
-void redrawFrame(sf::RenderWindow &window, sf::ConvexShape &pointer)
+void redrawFrame(sf::RenderWindow &window, Arrow &arrow)
 {
     window.clear();
-    window.draw(pointer);
+    window.draw(arrow.stem);
+    window.draw(arrow.head);
     window.display();
 }
 
@@ -66,19 +101,19 @@ int main()
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
         sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}),
-        "Pointer follows mouse",
+        "Arrow follows mouse",
         sf::Style::Default,
         settings);
 
-    sf::ConvexShape pointer;
+    Arrow arrow;
     sf::Vector2f mousePosition;
 
-    init(pointer);
+    initArrow(arrow);
 
     while (window.isOpen())
     {
         pollEvents(window, mousePosition);
-        update(mousePosition, pointer);
-        redrawFrame(window, pointer);
+        update(mousePosition, arrow);
+        redrawFrame(window, arrow);
     }
 }
