@@ -12,9 +12,7 @@ struct Eye
     const int pointCountPupil = 100;
     sf::ConvexShape eyeball;
     sf::ConvexShape pupil;
-    bool mouseInEye = false;
-    float angleLooking = 0.f;
-    sf::Vector2f positionMouseInEye = {0.f, 0.f};
+    sf::Vector2f pupilPositionOffset = {0.f, 0.f};
 };
 
 struct Face
@@ -39,15 +37,7 @@ float toDegrees(float radians)
 
 void updateEyeElements(Eye &eye)
 {
-    if (eye.mouseInEye)
-        eye.pupil.setPosition(eye.eyeball.getPosition() + eye.positionMouseInEye);
-    else
-    {
-        sf::Vector2f pupilPositionOffset = {
-            eye.radiusMuving.x * std::cos(eye.angleLooking),
-            eye.radiusMuving.y * std::sin(eye.angleLooking)};
-        eye.pupil.setPosition(eye.eyeball.getPosition() + pupilPositionOffset);
-    }
+    eye.pupil.setPosition(eye.eyeball.getPosition() + eye.pupilPositionOffset);
 }
 
 void initEye(Eye &eye, sf::Vector2f position)
@@ -112,8 +102,14 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
 void updateEye(const sf::Vector2f &mousePosition, Eye &eye)
 {
     const sf::Vector2f delta = mousePosition - eye.eyeball.getPosition();
-    eye.angleLooking = atan2(delta.y, delta.x);
-    std::cout << "angleLooking=" << eye.angleLooking << std::endl;
+    const float angleLooking = atan2(delta.y, delta.x);
+    const float distanceMouse = float(std::sqrt(delta.x * delta.x + delta.y * delta.y));
+    eye.pupilPositionOffset = {
+        eye.radiusMuving.x * std::cos(angleLooking),
+        eye.radiusMuving.y * std::sin(angleLooking)};
+    const float maxDistancePupil = float(std::sqrt(eye.pupilPositionOffset.x * eye.pupilPositionOffset.x + eye.pupilPositionOffset.y * eye.pupilPositionOffset.y));
+    if (distanceMouse <= maxDistancePupil)
+        eye.pupilPositionOffset = delta;
     updateEyeElements(eye);
 }
 
