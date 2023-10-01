@@ -46,16 +46,21 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
 void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer, sf::Clock &clock)
 {
     constexpr float angleSpeed = 15.f;
+    const float dtime = clock.restart().asSeconds();
+    const sf::Vector2f newRadiusVector = mousePosition - pointer.getPosition();
+    float mouseAngle = toDegress(atan2(newRadiusVector.y, newRadiusVector.x));
+    const float pointerAngle = pointer.getRotation();
+    mouseAngle = (mouseAngle < 0) ? 360 + mouseAngle : mouseAngle;
+    if (mouseAngle != pointerAngle)
+    {
+        float deltaAngle = mouseAngle - pointerAngle;
+        float unsignedAngleOffset = dtime * angleSpeed;
+        float signedOffset = (deltaAngle > 0) ? 1 : -1;
+        float angleOffset = unsignedAngleOffset * signedOffset;
 
-    const sf::Vector2f delta = mousePosition - pointer.getPosition();
-    const float angle = atan2(delta.y, delta.x);
-    float old_angle = pointer.getRotation();
-    /*
-    float da = old_angle - ((toDegress(angle) >= 0) ? toDegress(angle) : 360 + toDegress(angle));
-    std::cout << old_angle << " | " << da << " | " << toDegress(angle) << std::endl;
-    pointer.rotate((da < 15 && -da < 15) ? da : 15 * (da / abs(da)));
-    */
-    pointer.setRotation(toDegress(angle));
+        //std::cout << deltaAngle << " | " << pointerAngle << " | " << mouseAngle << std::endl;
+        pointer.rotate((std::abs(angleOffset) > std::abs(deltaAngle)) ? deltaAngle : angleOffset);
+    }
 }
 
 void redrawFrame(sf::RenderWindow &window, sf::ConvexShape &pointer)
