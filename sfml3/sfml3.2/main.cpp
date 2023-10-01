@@ -3,19 +3,34 @@
 #include <cmath>
 #include <iostream>
 
-struct Arrow
+struct Eye
 {
-    sf::ConvexShape head;
-    sf::RectangleShape stem;
-    sf::Vector2f position;
-    float rotation = 0;
+    const sf::Vector2f radiusEyeball = {40.f, 100.f};
+    const sf::Vector2f radiusPupil = {10.f, 25.f};
+    const sf::Vector2f radiusMuving = {20.f, 50.f};
+    const int pointCountBall = 200;
+    const int pointCountPupil = 100;
+    sf::ConvexShape eyeball;
+    sf::ConvexShape pupil;
+    bool mouseInEye = false;
+    float angleLooking = 0.f;
+    sf::Vector2f positionMouseInEye = {0.f, 0.f};
+};
+
+struct Face
+{
+    const sf::Vector2f positionLeftEye = {320.f, 300.f};
+    const sf::Vector2f positionRightEye = {440.f, 300.f};
+    Eye leftEye;
+    Eye rightEye;
 };
 
 sf::Vector2f toEuclidean(float radius, float angle)
 {
     return {
         float(radius * std::cos(angle)),
-        float(radius * std::sin(angle))};
+        float(radius * std::sin(angle))
+    };
 }
 
 float toDegrees(float radians)
@@ -23,37 +38,58 @@ float toDegrees(float radians)
     return float(double(radians) * 180.0 / M_PI);
 }
 
-void updateArrowElements(Arrow &arrow)
+void updateEyeElements(Eye &eye)
 {
-    const sf::Vector2f headOffset = toEuclidean(40, arrow.rotation);
-    arrow.head.setPosition(arrow.position + headOffset);
-    arrow.head.setRotation(toDegrees(arrow.rotation));
-
-    const sf::Vector2f stemOffset = toEuclidean(-10, arrow.rotation); // ?????????????????????????????
-    arrow.stem.setPosition(arrow.position);
-    arrow.stem.setRotation(toDegrees(arrow.rotation));
+    if (eye.mouseInEye)
+        eye.pupil.setPosition(eye.eyeball.getPosition() + eye.positionMouseInEye);
+    else
+    {
+        sf::Vector2f pupilPositionOffset = {
+            eye.radiusMuving.x * std::cos(eye.angleLooking),
+            eye.radiusMuving.y * std::sin(eye.angleLooking)
+        };
+        eye.pupil.setPosition(eye.eyeball.getPosition() + pupilPositionOffset);
+    }
 }
 
-void initArrow(Arrow &arrow)
+void initEye(Eye &eye, sf::Vector2f position)
 {
-    arrow.position = {400, 300};
+    eye.eyeball.setPosition(position);
+    eye.eyeball.setPointCount(eye.pointCountBall);
+    eye.eyeball.setFillColor(sf::Color(0xFF, 0xFF, 0xFF));
+    for (int i = 0; i < eye.pointCountBall; ++i)
+    {
+        float angle = float(2 * M_PI * i) / float(eye.pointCountBall);
+        sf::Vector2f point = {
+            eye.radiusEyeball.x * std::sin(angle),
+            eye.radiusEyeball.y * std::cos(angle)
+        };
+        eye.eyeball.setPoint(i, point);
+    }
 
-    arrow.head.setPointCount(3);
-    arrow.head.setPoint(0, {30, 0});
-    arrow.head.setPoint(1, {0, -20});
-    arrow.head.setPoint(2, {0, 20});
-    arrow.head.setFillColor(sf::Color(0xFF, 0x00, 0x00));
+    eye.pupil.setPointCount(eye.pointCountPupil);
+    eye.pupil.setFillColor(sf::Color(0x00, 0x00, 0x00));
+    for (int i = 0; i < eye.pointCountPupil; ++i)
+    {
+        float angle = float(2 * M_PI * i) / float(eye.pointCountPupil);
+        sf::Vector2f point = {
+            eye.radiusPupil.x * std::sin(angle),
+            eye.radiusPupil.y * std::cos(angle)};
+        eye.pupil.setPoint(i, point);
+    }
 
-    arrow.stem.setSize({80, 20});
-    arrow.stem.setOrigin({40, 10});
-    arrow.stem.setFillColor(sf::Color(0xF0, 0xA0, 0x00));
+    updateEyeElements(eye);
+}
 
-    updateArrowElements(arrow);
+void initFace(Face &face)
+{
+    initEye(face.leftEye, face.positionLeftEye);
+    initEye(face.rightEye, face.positionRightEye);
 }
 
 void onMouseMove(const sf::Event::MouseMoveEvent &event, sf::Vector2f &mousePosition)
 {
-    std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
+    //std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
     mousePosition = {float(event.x), float(event.y)};
 }
 
@@ -76,18 +112,21 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
     }
 }
 
-void update(const sf::Vector2f &mousePosition, Arrow &arrow)
+void updateEye(const sf::Vector2f &mousePosition, Eye &eye)
 {
-    const sf::Vector2f delta = mousePosition - arrow.position;
-    arrow.rotation = atan2(delta.y, delta.x);
-    updateArrowElements(arrow);
+    const sf::Vector2f delta = mousePosition - eye.eyeball.getPosition();
+    eye.angleLooking = atan2(delta.y, delta.x);
+    std::cout << "angleLooking=" << eye.angleLooking << std::endl;
+    updateEyeElements(eye);
 }
 
-void redrawFrame(sf::RenderWindow &window, Arrow &arrow)
+void redrawFrame(sf::RenderWindow &window, Face &face)
 {
     window.clear();
-    window.draw(arrow.stem);
-    window.draw(arrow.head);
+    window.draw(face.leftEye.eyeball);
+    window.draw(face.leftEye.pupil);
+    window.draw(face.rightEye.eyeball);
+    window.draw(face.rightEye.pupil);
     window.display();
 }
 
@@ -95,24 +134,24 @@ int main()
 {
     constexpr unsigned WINDOW_WIDTH = 800;
     constexpr unsigned WINDOW_HEIGHT = 600;
+    sf::Vector2f mousePosition;
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
         sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}),
-        "Arrow follows mouse",
+        "Eye follows mouse",
         sf::Style::Default,
         settings);
 
-    Arrow arrow;
-    sf::Vector2f mousePosition;
-
-    initArrow(arrow);
+    Face face;
+    initFace(face);
 
     while (window.isOpen())
     {
         pollEvents(window, mousePosition);
-        update(mousePosition, arrow);
-        redrawFrame(window, arrow);
+        updateEye(mousePosition, face.leftEye);
+        updateEye(mousePosition, face.rightEye);
+        redrawFrame(window, face);
     }
 }
