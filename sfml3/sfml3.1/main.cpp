@@ -55,10 +55,8 @@ void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer, sf::Clo
     {
         float deltaAngle = mouseAngle - pointerAngle;
         float unsignedAngleOffset = dtime * angleSpeed;
-        float signedOffset = (deltaAngle > 0) ? 1 : -1;
+        float signedOffset = (deltaAngle > 0 && deltaAngle < 180 || deltaAngle < 0 && deltaAngle < -180) ? 1 : -1;
         float angleOffset = unsignedAngleOffset * signedOffset;
-
-        //std::cout << deltaAngle << " | " << pointerAngle << " | " << mouseAngle << std::endl;
         pointer.rotate((std::abs(angleOffset) > std::abs(deltaAngle)) ? deltaAngle : angleOffset);
     }
 }
