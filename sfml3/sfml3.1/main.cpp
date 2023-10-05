@@ -3,13 +3,13 @@
 #include <cmath>
 #include <iostream>
 
-void init(sf::ConvexShape &pointer)
+void init(sf::ConvexShape& pointer)
 {
     pointer.setPointCount(3);
-    pointer.setPoint(0, {40, 0});
-    pointer.setPoint(1, {-20, -20});
-    pointer.setPoint(2, {-20, 20});
-    pointer.setPosition({400, 300});
+    pointer.setPoint(0, { 40, 0 });
+    pointer.setPoint(1, { -20, -20 });
+    pointer.setPoint(2, { -20, 20 });
+    pointer.setPosition({ 400, 300 });
     pointer.setFillColor(sf::Color(0xFF, 0x80, 0x00));
 }
 
@@ -18,13 +18,13 @@ float toDegress(float radians)
     return float(double(radians) * 180.0 / M_PI);
 }
 
-void onMouseMove(const sf::Event::MouseMoveEvent &event, sf::Vector2f &mousePosition)
+void onMouseMove(const sf::Event::MouseMoveEvent& event, sf::Vector2f& mousePosition)
 {
-    //std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
-    mousePosition = {float(event.x), float(event.y)};
+    // std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
+    mousePosition = { float(event.x), float(event.y) };
 }
 
-void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
+void pollEvents(sf::RenderWindow& window, sf::Vector2f& mousePosition)
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -43,7 +43,7 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
     }
 }
 
-void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer, sf::Clock &clock)
+void update(const sf::Vector2f& mousePosition, sf::ConvexShape& pointer, sf::Clock& clock)
 {
     constexpr float angleSpeed = 15.f;
     const float dtime = clock.restart().asSeconds();
@@ -61,7 +61,7 @@ void update(const sf::Vector2f &mousePosition, sf::ConvexShape &pointer, sf::Clo
     }
 }
 
-void redrawFrame(sf::RenderWindow &window, sf::ConvexShape &pointer)
+void redrawFrame(sf::RenderWindow& window, sf::ConvexShape& pointer)
 {
     window.clear();
     window.draw(pointer);
@@ -78,7 +78,7 @@ int main()
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
-        sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}),
+        sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
         "Pointer follows mouse",
         sf::Style::Default,
         settings);
