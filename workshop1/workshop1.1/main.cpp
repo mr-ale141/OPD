@@ -1,16 +1,25 @@
-// cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug ./workshop1.1
+// cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -S ./workshop1.1/ -B ./workshop1.1/
+// F10 переход через инструкцию
+// F11 заход в тело вызываемой функции
+// Shift + F11 выход из тела вызываемой функции
+// F5 продолжение выполнения до следующей точки останова либо до завершения программы
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <iostream>
 
-void init(sf::ConvexShape& pointer)
+void init(sf::ConvexShape& arrow)
 {
-    pointer.setPointCount(3);
-    pointer.setPoint(0, { 40, 0 });
-    pointer.setPoint(1, { -20, -20 });
-    pointer.setPoint(2, { -20, 20 });
-    pointer.setPosition({ 400, 300 });
-    pointer.setFillColor(sf::Color(0xFF, 0x80, 0x00));
+    arrow.setPointCount(7);
+    arrow.setPoint(0, { -20, 0 });
+    arrow.setPoint(1, { -40, 0 });
+    arrow.setPoint(2, { 0, -40 });
+    arrow.setPoint(3, { 40, 0 });
+    arrow.setPoint(4, { 20, 0 });
+    arrow.setPoint(5, { 20, 40 });
+    arrow.setPoint(6, { -20, 40 });
+    arrow.setPosition({ 400, 300 });
+    arrow.setFillColor(sf::Color(0xFF, 0xFF, 0x00));
+    arrow.setRotation(1.5);
 }
 
 float toDegress(float radians)
@@ -79,14 +88,14 @@ int main()
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
         sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
-        "Pointer follows mouse",
+        "Arrow",
         sf::Style::Default,
         settings);
 
-    sf::ConvexShape pointer;
+    sf::ConvexShape arrow;
     sf::Vector2f mousePosition;
 
-    init(pointer);
+    init(arrow);
 
     while (window.isOpen())
     {
