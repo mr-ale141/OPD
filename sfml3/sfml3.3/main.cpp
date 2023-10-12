@@ -5,20 +5,20 @@
 
 struct Eye
 {
-    const sf::Vector2f radiusEyeball = {40.f, 100.f};
-    const sf::Vector2f radiusPupil = {10.f, 25.f};
-    const sf::Vector2f radiusMuving = {20.f, 20.f};
+    const sf::Vector2f radiusEyeball = { 40.f, 100.f };
+    const sf::Vector2f radiusPupil = { 10.f, 25.f };
+    const sf::Vector2f radiusMuving = { 20.f, 20.f };
     const int pointCountBall = 200;
     const int pointCountPupil = 100;
     sf::ConvexShape eyeball;
     sf::ConvexShape pupil;
-    sf::Vector2f pupilPositionOffset = {0.f, 0.f};
+    sf::Vector2f pupilPositionOffset = { 0.f, 0.f };
 };
 
 struct Face
 {
-    const sf::Vector2f positionLeftEye = {320.f, 300.f};
-    const sf::Vector2f positionRightEye = {440.f, 300.f};
+    const sf::Vector2f positionLeftEye = { 320.f, 300.f };
+    const sf::Vector2f positionRightEye = { 440.f, 300.f };
     Eye leftEye;
     Eye rightEye;
 };
@@ -27,7 +27,8 @@ sf::Vector2f toEuclidean(float radius, float angle)
 {
     return {
         float(radius * std::cos(angle)),
-        float(radius * std::sin(angle))};
+        float(radius * std::sin(angle))
+    };
 }
 
 float toDegrees(float radians)
@@ -35,12 +36,12 @@ float toDegrees(float radians)
     return float(double(radians) * 180.0 / M_PI);
 }
 
-void updateEyeElements(Eye &eye)
+void updateEyeElements(Eye& eye)
 {
     eye.pupil.setPosition(eye.eyeball.getPosition() + eye.pupilPositionOffset);
 }
 
-void initEye(Eye &eye, sf::Vector2f position)
+void initEye(Eye& eye, sf::Vector2f position)
 {
     eye.eyeball.setPosition(position);
     eye.eyeball.setPointCount(eye.pointCountBall);
@@ -50,7 +51,8 @@ void initEye(Eye &eye, sf::Vector2f position)
         float angle = float(2 * M_PI * i) / float(eye.pointCountBall);
         sf::Vector2f point = {
             eye.radiusEyeball.x * std::sin(angle),
-            eye.radiusEyeball.y * std::cos(angle)};
+            eye.radiusEyeball.y * std::cos(angle)
+        };
         eye.eyeball.setPoint(i, point);
     }
 
@@ -61,26 +63,27 @@ void initEye(Eye &eye, sf::Vector2f position)
         float angle = float(2 * M_PI * i) / float(eye.pointCountPupil);
         sf::Vector2f point = {
             eye.radiusPupil.x * std::sin(angle),
-            eye.radiusPupil.y * std::cos(angle)};
+            eye.radiusPupil.y * std::cos(angle)
+        };
         eye.pupil.setPoint(i, point);
     }
 
     updateEyeElements(eye);
 }
 
-void initFace(Face &face)
+void initFace(Face& face)
 {
     initEye(face.leftEye, face.positionLeftEye);
     initEye(face.rightEye, face.positionRightEye);
 }
 
-void onMouseMove(const sf::Event::MouseMoveEvent &event, sf::Vector2f &mousePosition)
+void onMouseMove(const sf::Event::MouseMoveEvent& event, sf::Vector2f& mousePosition)
 {
     // std::cout << "mouse x=" << event.x << ", y=" << event.y << std::endl;
-    mousePosition = {float(event.x), float(event.y)};
+    mousePosition = { float(event.x), float(event.y) };
 }
 
-void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
+void pollEvents(sf::RenderWindow& window, sf::Vector2f& mousePosition)
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -99,34 +102,35 @@ void pollEvents(sf::RenderWindow &window, sf::Vector2f &mousePosition)
     }
 }
 
-void updateEye(const sf::Vector2f &mousePosition, Eye &eye)
+void updateEye(const sf::Vector2f& mousePosition, Eye& eye)
 {
-/*
+    /*
+        const sf::Vector2f delta = mousePosition - eye.eyeball.getPosition();
+        const float distanceMouse = float(std::sqrt(delta.x * delta.x + delta.y * delta.y));
+        const float angleLooking = atan2(delta.y, delta.x);
+        eye.pupilPositionOffset = {
+            eye.radiusMuving.x * std::cos(angleLooking),
+            eye.radiusMuving.y * std::sin(angleLooking)};
+        const float maxDistancePupil = float(std::sqrt(eye.pupilPositionOffset.x * eye.pupilPositionOffset.x + eye.pupilPositionOffset.y * eye.pupilPositionOffset.y));
+        std::cout << distanceMouse << " | " << maxDistancePupil << std::endl;
+        if (distanceMouse <= maxDistancePupil)
+            eye.pupilPositionOffset = delta;
+        updateEyeElements(eye);
+    */
     const sf::Vector2f delta = mousePosition - eye.eyeball.getPosition();
     const float distanceMouse = float(std::sqrt(delta.x * delta.x + delta.y * delta.y));
-    const float angleLooking = atan2(delta.y, delta.x);
-    eye.pupilPositionOffset = {
-        eye.radiusMuving.x * std::cos(angleLooking),
-        eye.radiusMuving.y * std::sin(angleLooking)};
-    const float maxDistancePupil = float(std::sqrt(eye.pupilPositionOffset.x * eye.pupilPositionOffset.x + eye.pupilPositionOffset.y * eye.pupilPositionOffset.y));
-    std::cout << distanceMouse << " | " << maxDistancePupil << std::endl;
-    if (distanceMouse <= maxDistancePupil)
-        eye.pupilPositionOffset = delta;
-    updateEyeElements(eye);
-*/
-    const sf::Vector2f delta = mousePosition - eye.eyeball.getPosition();
-    const float distanceMouse = float(std::sqrt(delta.x * delta.x + delta.y * delta.y));
-    const sf::Vector2f dirLooking = {delta.x / distanceMouse, delta.y / distanceMouse};
+    const sf::Vector2f dirLooking = { delta.x / distanceMouse, delta.y / distanceMouse };
     eye.pupilPositionOffset = {
         eye.radiusMuving.x * dirLooking.x,
-        eye.radiusMuving.y * dirLooking.y};
+        eye.radiusMuving.y * dirLooking.y
+    };
     const float maxDistancePupil = float(std::sqrt(eye.pupilPositionOffset.x * eye.pupilPositionOffset.x + eye.pupilPositionOffset.y * eye.pupilPositionOffset.y));
     if (distanceMouse <= maxDistancePupil)
         eye.pupilPositionOffset = delta;
     updateEyeElements(eye);
 }
 
-void redrawFrame(sf::RenderWindow &window, Face &face)
+void redrawFrame(sf::RenderWindow& window, Face& face)
 {
     window.clear();
     window.draw(face.leftEye.eyeball);
@@ -145,7 +149,7 @@ int main()
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
-        sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}),
+        sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
         "Eye follows mouse",
         sf::Style::Default,
         settings);
