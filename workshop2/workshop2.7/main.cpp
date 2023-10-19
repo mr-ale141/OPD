@@ -12,8 +12,9 @@ constexpr unsigned WINDOW_HEIGHT = 600;
 constexpr unsigned BALL_SIZE = 50;
 constexpr unsigned MIN_BALL_COUNT = 2;
 constexpr unsigned MAX_BALL_COUNT = 10;
-constexpr float MIN_SPEED = 80.f;
-constexpr float MAX_SPEED = 250.f;
+constexpr float MIN_SPEED = 200.f;
+constexpr float MAX_SPEED = 500.f;
+constexpr float LIFE_TIME = 10.f;
 
 struct PRNG
 {
@@ -116,7 +117,7 @@ void createRandomBall(std::vector<circleStruct>& circles, PRNG& generator, sf::C
         circleItm.circle = circle;
         circleItm.speed = speed;
         circleItm.preTime = clock.getElapsedTime().asSeconds();
-        circleItm.liveTime = 10.f;
+        circleItm.liveTime = LIFE_TIME;
         circles.push_back(circleItm);
     }
 }
@@ -128,8 +129,11 @@ bool isDeth(circleStruct circleItm)
 
 void rmoveDeathBalls(std::vector<circleStruct>& circles)
 {
-    auto newEnd = std::remove_if(circles.begin(), circles.end(), isDeth);
-    circles.erase(newEnd, circles.end());
+    if (circles.size() != 0)
+    {
+        auto newEnd = std::remove_if(circles.begin(), circles.end(), isDeth);
+        circles.erase(newEnd, circles.end());
+    }
 }
 
 void pollEvents(sf::RenderWindow& window, std::vector<circleStruct>& circles, PRNG& generator, sf::Clock& clock)
@@ -151,10 +155,8 @@ void pollEvents(sf::RenderWindow& window, std::vector<circleStruct>& circles, PR
     }
 }
 
-void update(std::vector<circleStruct>& circles, sf::Clock& clock)
+void checkWallImpacts(std::vector<circleStruct>& circles, sf::Clock& clock)
 {
-    if (circles.size() != 0)
-        rmoveDeathBalls(circles);
     for (int i = 0; i < std::size(circles); ++i)
     {
         float currTime = clock.getElapsedTime().asSeconds();
@@ -173,6 +175,10 @@ void update(std::vector<circleStruct>& circles, sf::Clock& clock)
         circles[i].circle.setPosition(position);
         circles[i].preTime = currTime;
     }
+}
+
+void checkBetweenBallImpacts(std::vector<circleStruct>& circles)
+{
     if (circles.size() > 1)
         for (int i = 0; i < std::size(circles); ++i)
             for (int j = i + 1; j < std::size(circles); ++j)
@@ -186,6 +192,13 @@ void update(std::vector<circleStruct>& circles, sf::Clock& clock)
                     updateSpeedAfterImpact(circles[i].speed, posI, circles[j].speed, posJ);
                 }
             }
+}
+
+void update(std::vector<circleStruct>& circles, sf::Clock& clock)
+{
+    rmoveDeathBalls(circles);
+    checkBetweenBallImpacts(circles);
+    checkWallImpacts(circles, clock);
 }
 
 void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)
@@ -209,7 +222,7 @@ int main()
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(
         sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
-        "Cat moving",
+        "Ball moving",
         sf::Style::Default,
         settings);
 
