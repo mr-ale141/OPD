@@ -154,23 +154,23 @@ int main()
 
     sf::CircleShape circleRed(BALL_SIZE);
     circleRed.setPosition({ 200, 120 });
-    circleRed.setFillColor(sf::Color(0xFF, 0x00, 0x00));
+    circleRed.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
     circleRed.setOrigin({ BALL_SIZE, BALL_SIZE });
     sf::CircleShape circleYellow(BALL_SIZE);
     circleYellow.setPosition({ 500, 200 });
-    circleYellow.setFillColor(sf::Color(0xFF, 0xFF, 0x00));
+    circleYellow.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
     circleYellow.setOrigin({ BALL_SIZE, BALL_SIZE });
     sf::CircleShape circleBlue(BALL_SIZE);
     circleBlue.setPosition({ 200, 450 });
-    circleBlue.setFillColor(sf::Color(0x00, 0x00, 0xFF));
+    circleBlue.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
     circleBlue.setOrigin({ BALL_SIZE, BALL_SIZE });
     sf::CircleShape circleGreen(BALL_SIZE);
     circleGreen.setPosition({ 350, 480 });
-    circleGreen.setFillColor(sf::Color(0x00, 0xFF, 0x00));
+    circleGreen.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
     circleGreen.setOrigin({ BALL_SIZE, BALL_SIZE });
     sf::CircleShape circleBlack(BALL_SIZE);
     circleBlack.setPosition({ 100, 50 });
-    circleBlack.setFillColor(sf::Color(0x00, 0xFF, 0xFF));
+    circleBlack.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
     circleBlack.setOrigin({ BALL_SIZE, BALL_SIZE });
 
     sf::Clock clock;
