@@ -68,7 +68,7 @@ void update(std::vector<circleStruct>& circles, sf::Clock& clock)
 
 void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)
 {
-    window.clear(sf::Color(0xFF, 0xFF, 0xFF));
+    window.clear();
     for (circleStruct circleItem : circles)
     {
         window.draw(circleItem.circle);
@@ -101,7 +101,7 @@ int main()
     circleGreen.setFillColor(sf::Color(0x00, 0xFF, 0x00));
     sf::CircleShape circleBlack(BALL_SIZE);
     circleBlack.setPosition({ 100, 50 });
-    circleBlack.setFillColor(sf::Color(0x00, 0x00, 0x00));
+    circleBlack.setFillColor(sf::Color(0x00, 0xFF, 0xFF));
 
     sf::Clock clock;
 
