@@ -10,8 +10,10 @@
 constexpr unsigned WINDOW_WIDTH = 800;
 constexpr unsigned WINDOW_HEIGHT = 600;
 constexpr unsigned BALL_SIZE = 50;
-constexpr float MIN_SPEED = 50.f;
-constexpr float MAX_SPEED = 100.f;
+constexpr unsigned MIN_BALL_COUNT = 2;
+constexpr unsigned MAX_BALL_COUNT = 10;
+constexpr float MIN_SPEED = 80.f;
+constexpr float MAX_SPEED = 250.f;
 
 struct PRNG
 {
@@ -80,7 +82,44 @@ void updateSpeedAfterImpact(sf::Vector2f& v1, sf::Vector2f c1, sf::Vector2f& v2,
     v2 = w2;
 }
 
-void pollEvents(sf::RenderWindow& window)
+void createRandomBall(std::vector<circleStruct>& circles, PRNG& generator, sf::Clock& clock)
+{
+    circleStruct circleItm;
+    sf::Vector2f speed;
+    if (getRandomInt(generator, 0, 1))
+        speed.x = getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
+    else
+        speed.x = -getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
+    if (getRandomInt(generator, 0, 1))
+        speed.y = getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
+    else
+        speed.y = -getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
+    sf::CircleShape circle(BALL_SIZE);
+    circle.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
+    circle.setOrigin({ BALL_SIZE, BALL_SIZE });
+    sf::Vector2f position;
+    bool isBusyPosition;
+    int count = 0;
+    do
+    {
+        count++;
+        isBusyPosition = false;
+        position = { getRandomFloat(generator, BALL_SIZE, WINDOW_WIDTH - BALL_SIZE), getRandomFloat(generator, BALL_SIZE, WINDOW_HEIGHT - BALL_SIZE) };
+        for (int i = 0; i < circles.size(); ++i)
+            if (getModule(circles[i].circle.getPosition() - position) < 2 * BALL_SIZE)
+                isBusyPosition = true;
+    } while (isBusyPosition && count < 1000);
+    if (count < 1000)
+    {
+        circle.setPosition(position);
+        circleItm.circle = circle;
+        circleItm.speed = speed;
+        circleItm.preTime = clock.getElapsedTime().asSeconds();
+        circles.push_back(circleItm);
+    }
+}
+
+void pollEvents(sf::RenderWindow& window, std::vector<circleStruct>& circles, PRNG& generator, sf::Clock& clock)
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -89,6 +128,9 @@ void pollEvents(sf::RenderWindow& window)
         {
         case sf::Event::Closed:
             window.close();
+            break;
+        case sf::Event::MouseButtonPressed:
+            createRandomBall(circles, generator, clock);
             break;
         default:
             break;
@@ -115,18 +157,19 @@ void update(std::vector<circleStruct>& circles, sf::Clock& clock)
         circles[i].circle.setPosition(position);
         circles[i].preTime = currTime;
     }
-    for (int i = 0; i < std::size(circles); ++i)
-        for (int j = i + 1; j < std::size(circles); ++j)
-        {
-            sf::Vector2f posI = circles[i].circle.getPosition();
-            sf::Vector2f posJ = circles[j].circle.getPosition();
-            sf::Vector2f dPos = posI - posJ;
-            float dist = getModule(dPos);
-            if (dist <= 2 * BALL_SIZE)
+    if (circles.size() > 1)
+        for (int i = 0; i < std::size(circles); ++i)
+            for (int j = i + 1; j < std::size(circles); ++j)
             {
-                updateSpeedAfterImpact(circles[i].speed, posI, circles[j].speed, posJ);
+                sf::Vector2f posI = circles[i].circle.getPosition();
+                sf::Vector2f posJ = circles[j].circle.getPosition();
+                sf::Vector2f dPos = posI - posJ;
+                float dist = getModule(dPos);
+                if (dist < 2 * BALL_SIZE)
+                {
+                    updateSpeedAfterImpact(circles[i].speed, posI, circles[j].speed, posJ);
+                }
             }
-        }
 }
 
 void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)
@@ -152,40 +195,13 @@ int main()
         sf::Style::Default,
         settings);
 
-    sf::CircleShape circleRed(BALL_SIZE);
-    circleRed.setPosition({ 200, 120 });
-    circleRed.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circleRed.setOrigin({ BALL_SIZE, BALL_SIZE });
-    sf::CircleShape circleYellow(BALL_SIZE);
-    circleYellow.setPosition({ 500, 200 });
-    circleYellow.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circleYellow.setOrigin({ BALL_SIZE, BALL_SIZE });
-    sf::CircleShape circleBlue(BALL_SIZE);
-    circleBlue.setPosition({ 200, 450 });
-    circleBlue.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circleBlue.setOrigin({ BALL_SIZE, BALL_SIZE });
-    sf::CircleShape circleGreen(BALL_SIZE);
-    circleGreen.setPosition({ 350, 480 });
-    circleGreen.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circleGreen.setOrigin({ BALL_SIZE, BALL_SIZE });
-    sf::CircleShape circleBlack(BALL_SIZE);
-    circleBlack.setPosition({ 100, 50 });
-    circleBlack.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circleBlack.setOrigin({ BALL_SIZE, BALL_SIZE });
-
     sf::Clock clock;
 
-    std::vector<circleStruct> circles = {
-        { circleRed, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
-        { circleYellow, { -getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
-        { circleBlue, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
-        { circleGreen, { -getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
-        { circleBlack, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() }
-    };
+    std::vector<circleStruct> circles;
 
     while (window.isOpen())
     {
-        pollEvents(window);
+        pollEvents(window, circles, generator, clock);
         update(circles, clock);
         redrawFrame(window, circles);
     }
