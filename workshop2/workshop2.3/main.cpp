@@ -1,14 +1,22 @@
 // cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -S ./workshop1.1/ -B ./workshop1.1/
 #include <SFML/Graphics.hpp>
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <iostream>
+#include <random>
 #include <vector>
 
 constexpr unsigned WINDOW_WIDTH = 800;
 constexpr unsigned WINDOW_HEIGHT = 600;
 constexpr unsigned BALL_SIZE = 50;
-int count = 0;
+constexpr float MIN_SPEED = 50.f;
+constexpr float MAX_SPEED = 100.f;
+
+struct PRNG
+{
+    std::mt19937 engine;
+};
 
 struct circleStruct
 {
@@ -16,6 +24,26 @@ struct circleStruct
     sf::Vector2f speed;
     float preTime;
 };
+
+void initGenerator(PRNG& generator)
+{
+    std::random_device device;
+    generator.engine.seed(device());
+}
+
+unsigned getRandomInt(PRNG& generator, unsigned minValue, unsigned maxValue)
+{
+    assert(minValue < maxValue);
+    std::uniform_int_distribution<unsigned> distribution(minValue, maxValue);
+    return distribution(generator.engine);
+}
+
+float getRandomFloat(PRNG& generator, float minValue, float maxValue)
+{
+    assert(minValue < maxValue);
+    std::uniform_real_distribution<float> distribution(minValue, maxValue);
+    return distribution(generator.engine);
+}
 
 sf::Vector2f toEuclidean(float radius, float angle)
 {
@@ -113,6 +141,8 @@ void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)
 
 int main()
 {
+    PRNG generator;
+    initGenerator(generator);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -146,11 +176,11 @@ int main()
     sf::Clock clock;
 
     std::vector<circleStruct> circles = {
-        { circleRed, { 50.f, 75.f }, clock.getElapsedTime().asSeconds() },
-        { circleYellow, { -50.f, -75.f }, clock.getElapsedTime().asSeconds() },
-        { circleBlue, { 75.f, 50.f }, clock.getElapsedTime().asSeconds() },
-        { circleGreen, { -75.f, -50.f }, clock.getElapsedTime().asSeconds() },
-        { circleBlack, { 80.f, -60.f }, clock.getElapsedTime().asSeconds() }
+        { circleRed, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
+        { circleYellow, { -getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
+        { circleBlue, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
+        { circleGreen, { -getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() },
+        { circleBlack, { getRandomFloat(generator, MIN_SPEED, MAX_SPEED), -getRandomFloat(generator, MIN_SPEED, MAX_SPEED) }, clock.getElapsedTime().asSeconds() }
     };
 
     while (window.isOpen())
