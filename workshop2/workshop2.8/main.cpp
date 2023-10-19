@@ -9,12 +9,15 @@
 
 constexpr unsigned WINDOW_WIDTH = 800;
 constexpr unsigned WINDOW_HEIGHT = 600;
-constexpr unsigned BALL_SIZE = 50;
 constexpr unsigned MIN_BALL_COUNT = 2;
 constexpr unsigned MAX_BALL_COUNT = 10;
+constexpr float MIN_BALL_SIZE = 20;
+constexpr float MAX_BALL_SIZE = 70;
 constexpr float MIN_SPEED = 200.f;
 constexpr float MAX_SPEED = 500.f;
 constexpr float LIFE_TIME = 10.f;
+constexpr float DENSITY = 1.5f;
+constexpr float TOLERANCE = 0.01f;
 
 struct PRNG
 {
@@ -62,26 +65,73 @@ float toDegress(float radians)
     return float(double(radians) * 180.0 / M_PI);
 }
 
-float dot(sf::Vector2f speed, sf::Vector2f pos)
+float dot(sf::Vector2f v1, sf::Vector2f v2)
 {
-    return speed.x * pos.x + speed.y * pos.y;
+    return v1.x * v2.x + v1.y * v2.y;
 }
 
 float getModule(sf::Vector2f v)
 {
     float module = std::sqrt(v.x * v.x + v.y * v.y);
-    if (module == 0)
-        module = 0.000001;
+    // if (module == 0)
+    //     module = 0.000001;
     return module;
 }
 
-void updateSpeedAfterImpact(sf::Vector2f& v1, sf::Vector2f c1, sf::Vector2f& v2, sf::Vector2f c2)
+bool areCloseAbsolute(float a, float b, float tolerance = 0.001f)
 {
+    return std::abs(a - b) < tolerance;
+}
 
+bool areCloseRelative(float a, float b, float tolerance = 0.001f)
+{
+    return std::abs((a - b) / b) < tolerance;
+}
+
+bool areFuzzyEqual(float a, float b)
+{
+    float tolerance = TOLERANCE;
+    if (std::abs(b) > 1.f)
+    {
+        return areCloseRelative(a, b, tolerance);
+    }
+    return areCloseAbsolute(a, b, tolerance);
+}
+
+void updateSpeedAfterImpact(circleStruct& circle1, circleStruct& circle2)
+{
+    float r1 = circle1.circle.getRadius();
+    float r2 = circle2.circle.getRadius();
+    float m1 = DENSITY * r1 * r1 * r1;
+    float m2 = DENSITY * r2 * r2 * r2;
+    sf::Vector2f v1 = circle1.speed;
+    sf::Vector2f v2 = circle2.speed;
+    sf::Vector2f c1 = circle1.circle.getPosition();
+    sf::Vector2f c2 = circle2.circle.getPosition();
     sf::Vector2f w1 = v1 - (dot(v1 - v2, c1 - c2) / (getModule(c1 - c2) * getModule(c1 - c2))) * (c1 - c2);
     sf::Vector2f w2 = v2 - (dot(v2 - v1, c2 - c1) / (getModule(c2 - c1) * getModule(c2 - c1))) * (c2 - c1);
-    v1 = w1;
-    v2 = w2;
+    assert(areFuzzyEqual(getModule(v1 + v2), getModule(w1 + w2)));
+    circle1.speed = w1;
+    circle2.speed = w2;
+    float Ev1 = m1 * getModule(v1) * getModule(v1);
+    float Ev2 = m2 * getModule(v2) * getModule(v2);
+    float Ew1 = m1 * getModule(w1) * getModule(w1);
+    float Ew2 = m2 * getModule(w2) * getModule(w2);
+    float Pv1 = m1 * getModule(v1);
+    float Pv2 = m2 * getModule(v2);
+    float Pw1 = m1 * getModule(w1);
+    float Pw2 = m2 * getModule(w2);
+    std::cout << getModule(v1 + v2) << std::endl;
+    std::cout << getModule(w1 + w2) << std::endl;
+    std::cout << std::endl;
+    std::cout << Ev1 + Ev2 << std::endl;
+    std::cout << Ew1 + Ew2 << std::endl;
+    std::cout << std::endl;
+    std::cout << Pv1 + Pv2 << std::endl;
+    std::cout << Pw1 + Pw2 << std::endl;
+    std::cout << std::endl;
+    assert(areFuzzyEqual(Ev1 + Ev2, Ew1 + Ew2));
+    // assert(areFuzzyEqual(Pv1 + Pv2, Pw1 + Pw2));
 }
 
 void createRandomBall(std::vector<circleStruct>& circles, PRNG& generator, sf::Clock& clock)
@@ -96,9 +146,11 @@ void createRandomBall(std::vector<circleStruct>& circles, PRNG& generator, sf::C
         speed.y = getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
     else
         speed.y = -getRandomFloat(generator, MIN_SPEED, MAX_SPEED);
-    sf::CircleShape circle(BALL_SIZE);
+    // float sizeBall = getRandomFloat(generator, MIN_BALL_SIZE, MAX_BALL_SIZE);
+    float sizeBall = 50.f;
+    sf::CircleShape circle(sizeBall);
     circle.setFillColor(sf::Color(getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255), getRandomInt(generator, 0, 255)));
-    circle.setOrigin({ BALL_SIZE, BALL_SIZE });
+    circle.setOrigin({ sizeBall, sizeBall });
     sf::Vector2f position;
     bool isBusyPosition;
     int count = 0;
@@ -106,9 +158,9 @@ void createRandomBall(std::vector<circleStruct>& circles, PRNG& generator, sf::C
     {
         count++;
         isBusyPosition = false;
-        position = { getRandomFloat(generator, BALL_SIZE, WINDOW_WIDTH - BALL_SIZE), getRandomFloat(generator, BALL_SIZE, WINDOW_HEIGHT - BALL_SIZE) };
+        position = { getRandomFloat(generator, sizeBall, WINDOW_WIDTH - sizeBall), getRandomFloat(generator, sizeBall, WINDOW_HEIGHT - sizeBall) };
         for (int i = 0; i < circles.size(); ++i)
-            if (getModule(circles[i].circle.getPosition() - position) < 2 * BALL_SIZE)
+            if (getModule(circles[i].circle.getPosition() - position) < sizeBall + circles[i].circle.getRadius())
                 isBusyPosition = true;
     } while (isBusyPosition && count < 1000);
     if (count < 1000)
@@ -164,13 +216,14 @@ void checkWallImpacts(std::vector<circleStruct>& circles, sf::Clock& clock)
         circles[i].liveTime -= dt;
         sf::Vector2f position = circles[i].circle.getPosition();
         position += circles[i].speed * dt;
-        if ((position.x + BALL_SIZE >= WINDOW_WIDTH) && (circles[i].speed.x > 0))
+        float r = circles[i].circle.getRadius();
+        if ((position.x + r >= WINDOW_WIDTH) && (circles[i].speed.x > 0))
             circles[i].speed.x = -circles[i].speed.x;
-        if ((position.x - BALL_SIZE < 0) && (circles[i].speed.x < 0))
+        if ((position.x - r < 0) && (circles[i].speed.x < 0))
             circles[i].speed.x = -circles[i].speed.x;
-        if ((position.y + BALL_SIZE >= WINDOW_HEIGHT) && (circles[i].speed.y > 0))
+        if ((position.y + r >= WINDOW_HEIGHT) && (circles[i].speed.y > 0))
             circles[i].speed.y = -circles[i].speed.y;
-        if ((position.y - BALL_SIZE < 0) && (circles[i].speed.y < 0))
+        if ((position.y - r < 0) && (circles[i].speed.y < 0))
             circles[i].speed.y = -circles[i].speed.y;
         circles[i].circle.setPosition(position);
         circles[i].preTime = currTime;
@@ -185,11 +238,13 @@ void checkBetweenBallImpacts(std::vector<circleStruct>& circles)
             {
                 sf::Vector2f posI = circles[i].circle.getPosition();
                 sf::Vector2f posJ = circles[j].circle.getPosition();
+                float r1 = circles[i].circle.getRadius();
+                float r2 = circles[j].circle.getRadius();
                 sf::Vector2f dPos = posI - posJ;
                 float dist = getModule(dPos);
-                if (dist < 2 * BALL_SIZE)
+                if (dist < r1 + r2)
                 {
-                    updateSpeedAfterImpact(circles[i].speed, posI, circles[j].speed, posJ);
+                    updateSpeedAfterImpact(circles[i], circles[j]);
                 }
             }
 }
