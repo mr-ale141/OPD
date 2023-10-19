@@ -202,6 +202,8 @@ int main()
 {
     PRNG generator;
     initGenerator(generator);
+    sf::Clock clock;
+    std::vector<circleStruct> circles;
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -210,10 +212,6 @@ int main()
         "Cat moving",
         sf::Style::Default,
         settings);
-
-    sf::Clock clock;
-
-    std::vector<circleStruct> circles;
 
     while (window.isOpen())
     {
