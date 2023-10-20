@@ -56,13 +56,14 @@ void updatePositionСat(
     sf::Sprite& cat,
     sf::Clock& clock)
 {
-    constexpr float speed = 20.f;
+    constexpr float speed = 100.f;
     const float time = clock.getElapsedTime().asSeconds();
     const float dTime = time - preTime[0];
     preTime[0] = time;
     const sf::Vector2f catPos = cat.getPosition();
     const sf::Vector2f offset = mousePositionClick - catPos;
-    if (offset.x != 0 && offset.y != 0)
+    float dist = std::sqrt(offset.x * offset.x + offset.y * offset.y);
+    if (dist > 1)
     {
         const float dist = std::abs(std::sqrt(offset.x * offset.x + offset.y * offset.y));
         const sf::Vector2f normOffset = { offset.x / dist, offset.y / dist };

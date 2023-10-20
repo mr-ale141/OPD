@@ -12,8 +12,8 @@ constexpr unsigned WINDOW_HEIGHT = 600;
 constexpr unsigned BALL_SIZE = 50;
 constexpr unsigned MIN_BALL_COUNT = 2;
 constexpr unsigned MAX_BALL_COUNT = 10;
-constexpr float MIN_SPEED = 200.f;
-constexpr float MAX_SPEED = 500.f;
+constexpr float MIN_SPEED = 80.f;
+constexpr float MAX_SPEED = 180.f;
 constexpr float LIFE_TIME = 10.f;
 
 struct PRNG
