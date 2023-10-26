@@ -127,7 +127,7 @@ bool isDeth(circleStruct circleItm)
     return (circleItm.liveTime <= 0);
 }
 
-void rmoveDeathBalls(std::vector<circleStruct>& circles)
+void removeDeathBalls(std::vector<circleStruct>& circles)
 {
     if (circles.size() != 0)
     {
@@ -196,9 +196,17 @@ void checkBetweenBallImpacts(std::vector<circleStruct>& circles)
 
 void update(std::vector<circleStruct>& circles, sf::Clock& clock)
 {
-    rmoveDeathBalls(circles);
-    checkBetweenBallImpacts(circles);
-    checkWallImpacts(circles, clock);
+    constexpr float freqFrame = 50.f;
+    constexpr float lenOneFrame = 1.f / freqFrame;
+    float time = clock.getElapsedTime().asSeconds();
+    float preTime = time;
+    while (time - preTime < lenOneFrame)
+    {
+        removeDeathBalls(circles);
+        checkBetweenBallImpacts(circles);
+        checkWallImpacts(circles, clock);
+        time = clock.getElapsedTime().asSeconds();
+    }
 }
 
 void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)

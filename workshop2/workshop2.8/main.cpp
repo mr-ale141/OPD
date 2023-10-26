@@ -13,8 +13,8 @@ constexpr unsigned MIN_BALL_COUNT = 2;
 constexpr unsigned MAX_BALL_COUNT = 10;
 constexpr float MIN_BALL_SIZE = 20;
 constexpr float MAX_BALL_SIZE = 70;
-constexpr float MIN_SPEED = 80.f;
-constexpr float MAX_SPEED = 180.f;
+constexpr float MIN_SPEED = 180.f;
+constexpr float MAX_SPEED = 250.f;
 constexpr float LIFE_TIME = 10.f;
 constexpr float DENSITY = 1.5f;
 constexpr float TOLERANCE = 0.01f;
@@ -100,40 +100,40 @@ bool areFuzzyEqual(float a, float b)
 
 void updateSpeedAfterImpact(circleStruct& circle1, circleStruct& circle2)
 {
-    float r1 = circle1.circle.getRadius();
-    float r2 = circle2.circle.getRadius();
-    float m1 = DENSITY * r1 * r1 * r1;
-    float m2 = DENSITY * r2 * r2 * r2;
+    // float r1 = circle1.circle.getRadius();
+    // float r2 = circle2.circle.getRadius();
+    // float m1 = DENSITY * r1 * r1 * r1;
+    // float m2 = DENSITY * r2 * r2 * r2;
     sf::Vector2f v1 = circle1.speed;
     sf::Vector2f v2 = circle2.speed;
-    float modV1 = getModule(v1);
-    float modV2 = getModule(v2);
+    // float modV1 = getModule(v1);
+    // float modV2 = getModule(v2);
     sf::Vector2f c1 = circle1.circle.getPosition();
     sf::Vector2f c2 = circle2.circle.getPosition();
     sf::Vector2f w1 = v1 - (dot(v1 - v2, c1 - c2) / (getModule(c1 - c2) * getModule(c1 - c2))) * (c1 - c2);
     sf::Vector2f w2 = v2 - (dot(v2 - v1, c2 - c1) / (getModule(c2 - c1) * getModule(c2 - c1))) * (c2 - c1);
-    float modW1 = getModule(w1);
-    float modW2 = getModule(w2);
-    assert(areFuzzyEqual(getModule(v1 + v2), getModule(w1 + w2)));
+    // float modW1 = getModule(w1);
+    // float modW2 = getModule(w2);
+    // assert(areFuzzyEqual(getModule(v1 + v2), getModule(w1 + w2)));
     circle1.speed = w1;
     circle2.speed = w2;
-    float Ev1 = m1 * modV1 * modV1;
-    float Ev2 = m2 * modV2 * modV2;
-    float Ew1 = m1 * modW1 * modW1;
-    float Ew2 = m2 * modW2 * modW2;
-    float Pv1 = m1 * modV1;
-    float Pv2 = m2 * modV2;
-    float Pw1 = m1 * modW1;
-    float Pw2 = m2 * modW2;
-    std::cout << modV1 + modV2 << std::endl;
-    std::cout << modW1 + modW2 << std::endl;
-    std::cout << std::endl;
-    std::cout << Ev1 + Ev2 << std::endl;
-    std::cout << Ew1 + Ew2 << std::endl;
-    std::cout << std::endl;
-    std::cout << Pv1 + Pv2 << std::endl;
-    std::cout << Pw1 + Pw2 << std::endl;
-    std::cout << std::endl;
+    // float Ev1 = m1 * modV1 * modV1;
+    // float Ev2 = m2 * modV2 * modV2;
+    // float Ew1 = m1 * modW1 * modW1;
+    // float Ew2 = m2 * modW2 * modW2;
+    // float Pv1 = m1 * modV1;
+    // float Pv2 = m2 * modV2;
+    // float Pw1 = m1 * modW1;
+    // float Pw2 = m2 * modW2;
+    // std::cout << modV1 + modV2 << std::endl;
+    // std::cout << modW1 + modW2 << std::endl;
+    // std::cout << std::endl;
+    // std::cout << Ev1 + Ev2 << std::endl;
+    // std::cout << Ew1 + Ew2 << std::endl;
+    // std::cout << std::endl;
+    // std::cout << Pv1 + Pv2 << std::endl;
+    // std::cout << Pw1 + Pw2 << std::endl;
+    // std::cout << std::endl;
     // assert(areFuzzyEqual(Ev1 + Ev2, Ew1 + Ew2));
     // assert(areFuzzyEqual(Pv1 + Pv2, Pw1 + Pw2));
 }
@@ -184,7 +184,7 @@ bool isDeth(circleStruct circleItm)
     return (circleItm.liveTime <= 0);
 }
 
-void rmoveDeathBalls(std::vector<circleStruct>& circles)
+void removeDeathBalls(std::vector<circleStruct>& circles)
 {
     if (circles.size() != 0)
     {
@@ -256,9 +256,17 @@ void checkBetweenBallImpacts(std::vector<circleStruct>& circles)
 
 void update(std::vector<circleStruct>& circles, sf::Clock& clock)
 {
-    rmoveDeathBalls(circles);
-    checkBetweenBallImpacts(circles);
-    checkWallImpacts(circles, clock);
+    constexpr float freqFrame = 50.f;
+    constexpr float lenOneFrame = 1.f / freqFrame;
+    float time = clock.getElapsedTime().asSeconds();
+    float preTime = time;
+    while (time - preTime < lenOneFrame)
+    {
+        removeDeathBalls(circles);
+        checkBetweenBallImpacts(circles);
+        checkWallImpacts(circles, clock);
+        time = clock.getElapsedTime().asSeconds();
+    }
 }
 
 void redrawFrame(sf::RenderWindow& window, std::vector<circleStruct>& circles)
@@ -277,6 +285,7 @@ int main()
     initGenerator(generator);
     sf::Clock clock;
     std::vector<circleStruct> circles;
+    float preTime = clock.getElapsedTime().asSeconds();
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
