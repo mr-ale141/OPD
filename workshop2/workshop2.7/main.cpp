@@ -194,18 +194,22 @@ void checkBetweenBallImpacts(std::vector<circleStruct>& circles)
             }
 }
 
-void update(std::vector<circleStruct>& circles, sf::Clock& clock)
+void update(std::vector<circleStruct>& circles, sf::Clock& clock, float& preTimeFrame)
 {
-    constexpr float freqFrame = 50.f;
+    constexpr float freqFrame = 60.f;
     constexpr float lenOneFrame = 1.f / freqFrame;
+    constexpr int countSetPhisic = 50;
+    constexpr float lenOneSet = lenOneFrame / countSetPhisic;
+    int count = 0;
     float time = clock.getElapsedTime().asSeconds();
-    float preTime = time;
-    while (time - preTime < lenOneFrame)
+    if (count == 0) preTimeFrame = time;
+    if (time - preTimeFrame >= lenOneSet * count)
     {
         removeDeathBalls(circles);
         checkBetweenBallImpacts(circles);
         checkWallImpacts(circles, clock);
-        time = clock.getElapsedTime().asSeconds();
+        count++;
+        if (count == countSetPhisic) count = 0;
     }
 }
 
@@ -224,6 +228,7 @@ int main()
     PRNG generator;
     initGenerator(generator);
     sf::Clock clock;
+    float preTimeFrame;
     std::vector<circleStruct> circles;
 
     sf::ContextSettings settings;
@@ -237,7 +242,7 @@ int main()
     while (window.isOpen())
     {
         pollEvents(window, circles, generator, clock);
-        update(circles, clock);
+        update(circles, clock, preTimeFrame);
         redrawFrame(window, circles);
     }
 }
