@@ -1,54 +1,14 @@
 // cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -S ./workshop1.1/ -B ./workshop1.1/
+#include "ball.hpp"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 constexpr int RADIUS = 50;
 constexpr int CH_SIZE = 20;
-constexpr float SPEED_Y = 200.f;
+const char* name = "MDM";
 constexpr float G = 98.f;
-
-struct circleName
-{
-    sf::CircleShape circle;
-    sf::Text name;
-    sf::Font font;
-    sf::Vector2f pos;
-    sf::Vector2f v;
-    sf::Clock clock;
-    float preTime;
-};
-
-void updatePosBall(circleName& ball)
-{
-    ball.circle.setPosition(ball.pos);
-    ball.name.setPosition(ball.pos);
-}
-
-void init(circleName& ball)
-{
-    ball.pos = { WINDOW_WIDTH / 2, WINDOW_HEIGHT - RADIUS };
-    ball.v = { 0, 0 };
-    ball.circle.setRadius(RADIUS);
-    ball.circle.setOrigin({ RADIUS, RADIUS });
-    ball.circle.setPosition(ball.pos);
-    ball.circle.setFillColor(sf::Color(255, 150, 0));
-    ball.circle.setOutlineColor(sf::Color(0, 100, 255));
-    ball.circle.setOutlineThickness(5.f);
-
-    const char nameStr[] = "MDM";
-    ball.font.loadFromFile("arial.ttf");
-    ball.name.setFont(ball.font);
-    ball.name.setString(nameStr);
-    ball.name.setCharacterSize(CH_SIZE);
-    ball.name.setFillColor(sf::Color(0, 0, 0));
-    sf::Vector2f sizeName = ball.name.getLocalBounds().getSize();
-    ball.name.setOrigin({ sizeName.x / 2, (float)(sizeName.y / 1.2) });
-    ball.name.setPosition(ball.pos);
-
-    ball.preTime = ball.clock.getElapsedTime().asSeconds();
-}
+constexpr float SPEED_Y = 200.f;
 
 void pollEvents(sf::RenderWindow& window)
 {
@@ -66,25 +26,27 @@ void pollEvents(sf::RenderWindow& window)
     }
 }
 
-void update(circleName& ball)
+void update(Ball& ball, sf::Clock& clock, float& preTime)
 {
-    if (ball.pos.y + RADIUS >= WINDOW_HEIGHT)
-        ball.v.y = -SPEED_Y;
-    float time = ball.clock.getElapsedTime().asSeconds();
-    float dt = time - ball.preTime;
+    sf::Vector2f pos = ball.getPos();
+    sf::Vector2f v = ball.getV();
+    if (pos.y + RADIUS >= WINDOW_HEIGHT)
+        v.y = -SPEED_Y;
+    float time = clock.getElapsedTime().asSeconds();
+    float dt = time - preTime;
     float offsetV = dt * G;
-    ball.v.y += offsetV;
-    sf::Vector2f offsetY = ball.v * dt;
-    ball.pos += offsetY;
-    updatePosBall(ball);
-    ball.preTime = time;
+    v.y += offsetV;
+    sf::Vector2f offsetY = v * dt;
+    pos += offsetY;
+    ball.setV(v);
+    ball.setPos(pos);
+    preTime = time;
 }
 
-void redrawFrame(sf::RenderWindow& window, circleName& ball)
+void redrawFrame(sf::RenderWindow& window, Ball& ball)
 {
     window.clear();
-    window.draw(ball.circle);
-    window.draw(ball.name);
+    window.draw(ball);
     window.display();
 }
 
@@ -98,13 +60,15 @@ int main()
         sf::Style::Default,
         settings);
 
-    circleName ball;
-    init(ball);
+    sf::Vector2f pos = { WINDOW_WIDTH / 2, WINDOW_HEIGHT - RADIUS };
+    sf::Clock clock;
+    Ball ball(RADIUS, pos, sf::Color(255, 150, 0), sf::Color(0, 100, 255), name, CH_SIZE, sf::Color(0, 0, 0));
+    float preTime = clock.getElapsedTime().asSeconds();
 
     while (window.isOpen())
     {
         pollEvents(window);
-        update(ball);
+        update(ball, clock, preTime);
         redrawFrame(window, ball);
     }
 }
